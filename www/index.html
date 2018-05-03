@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <script src="lib/angular/angular.min.js"></script>
+    <script src="lib/onsenui/js/onsenui.min.js"></script>
+    <script src="lib/onsenui/js/angular-onsenui.min.js"></script>
+    
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+    <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+
+
+    function queryDB(tx) {
+        tx.executeSql('SELECT * FROM TestTable', [], querySuccess, errorCB);
+        var memo = MC.Collection("data");
+    }
+
+    function querySuccess(tx, results) {
+        var len = results.rows.length;
+        window.alert("This is " + len + " rows  in the database.");
+        for (var i=0; i<len; i++){
+            document.writeln("row = " + i + " ID = " + results.rows.item(i).id + " Data = " + results.rows.item(i).data+"<br/>");
+        }        
+    }
+
+    //Callback function when the transaction is failed.
+    function errorCB(err) {
+        console.log("Error occured while executing SQL: "+err.code);
+    }
+
+    // Callback function when the transaction is success.
+    function successCB() {
+        var db = window.openDatabase("data", "1.0", "TestDatabase", 100);
+        db.transaction(queryDB, errorCB);
+    }
+    </script>
+    <script>
+    ons.bootstrap()
+    .controller('AppController', function($scope) {
+        $scope.data ="NONE";
+           function onDeviceReady() {
+
+        window.alert("Create a database and display the content");
+        
+    }
+       successCB();
+       
+    });
+
+    
+    ons.ready(function() {
+        console.log("Onsen UI is ready!");
+    });
+  </script>
+</head>
+<body>
+
+    <ons-page ng-controller="AppController as app">
+        <ons-toolbar>
+            <div class="center">Push Demo</div>
+        </ons-toolbar>
+        
+        <ons-tabbar id="myTabbar" position="bottom">
+            <ons-tab page="page1.html" label="Page 1" icon="square" active></ons-tab>
+            <ons-tab page="page2.html" label="Page 2" icon="square"></ons-tab>
+        </ons-tabbar>
+    </ons-page>
+    
+    <template id="page1.html">
+        <ons-page ons-show="app.title = 'Page 1'">
+       
+            <div class="content" style="text-align: center">
+                <p>Page 1 content</p>
+            </div>
+        </ons-page>
+    </template>
+    
+    <template id="page2.html">
+        <ons-page ons-show="app.title = 'Page 2'">
+            <div class="content" style="text-align: center">
+                <p>Page 2 content</p>
+                <p>Data from push notification:</p>
+                <b>{{data}}</b>
+            </div>
+        </ons-page>
+    </template>
+</body>
+</html>
